@@ -1,6 +1,6 @@
 # Project Initialization Guide - Handbook/Compass Web App
 
-**Tech Stack**: Next.js 15 (Frontend) + FastAPI (Backend) + PostgreSQL + Redis + Pinecone
+**Tech Stack**: Next.js 15 (Frontend) + FastAPI (Backend) + PostgreSQL + Redis + Qdrant
 
 **Date**: January 26, 2026  
 **Target**: macOS/Linux Development Environment
@@ -14,21 +14,21 @@
 ```bash
 # Check versions
 node --version    # Need 20+ LTS
-python --version  # Need 3.11+
+python3 --version # Need 3.10+
 docker --version  # For PostgreSQL & Redis
 git --version
 
 # If missing, install:
-brew install node python@3.11 docker git
+brew install node python@3.12 docker git
 ```
 
 ### Accounts & API Keys Needed
 
-| Service | Purpose | Sign Up |
-|---------|---------|---------|
-| **OpenAI** | LLM API for quiz generation | https://platform.openai.com |
-| **Pinecone** | Vector database (Starter plan $12/mo) | https://pinecone.io |
-| **Vercel** | Frontend hosting (optional) | https://vercel.com |
+| Service      | Purpose                               | Sign Up                     |
+| ------------ | ------------------------------------- | --------------------------- |
+| **OpenAI**   | LLM API for quiz generation           | https://platform.openai.com |
+| **Qdrant**   | Vector database (Free 1GB cluster)    | https://cloud.qdrant.io     |
+| **Vercel**   | Frontend hosting (optional)           | https://vercel.com          |
 
 ---
 
@@ -127,8 +127,7 @@ git commit -m "chore: initial commit with gitignore"
 cd frontend
 
 # Initialize Next.js with TypeScript, Tailwind, App Router
-npx create-next-app@latest . --typescript --tailwind --app --use-npm \
-  --src-dir=false --import-alias="@/*"
+npx create-next-app@latest . --typescript --tailwind --app --use-npm \ --src-dir=false --import-alias="@/*"
 
 # Answer prompts:
 # ✔ Would you like to use ESLint? Yes
@@ -139,23 +138,9 @@ npx create-next-app@latest . --typescript --tailwind --app --use-npm \
 ### Step 2: Install Core Dependencies
 
 ```bash
-npm install \
-  @tiptap/react \
-  @tiptap/starter-kit \
-  @tiptap/extension-collaboration \
-  @tiptap/extension-collaboration-cursor \
-  yjs \
-  y-websocket \
-  zustand \
-  @tanstack/react-query \
-  next-auth \
-  axios \
-  zod
+npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-collaboration @tiptap/extension-collaboration-cursor yjs y-websocket zustand @tanstack/react-query next-auth axios zod
 
-npm install -D \
-  @types/node \
-  @types/react \
-  @types/react-dom
+npm install -D @types/node @types/react @types/react-dom
 ```
 
 ### Step 3: Install Shadcn/ui
@@ -206,16 +191,16 @@ openssl rand -base64 32
 
 ```bash
 mkdir -p \
-  app/api/auth \
-  app/(dashboard) \
-  app/(public) \
-  components/editor \
-  components/ui \
-  lib/api \
-  lib/hooks \
-  lib/stores \
-  lib/utils \
-  types
+  src/app/api/auth \
+  src/app/(dashboard) \
+  src/app/(public) \
+  src/components/editor \
+  src/components/ui \
+  src/lib/api \
+  src/lib/hooks \
+  src/lib/stores \
+  src/lib/utils \
+  src/types
 ```
 
 ### Step 6: Configure Next.js
@@ -223,20 +208,20 @@ mkdir -p \
 Edit `next.config.ts`:
 
 ```typescript
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb',
+      bodySizeLimit: "10mb",
     },
   },
   async rewrites() {
     return [
       {
-        source: '/api/v1/:path*',
-        destination: 'http://localhost:8000/api/v1/:path*',
+        source: "/api/v1/:path*",
+        destination: "http://localhost:8000/api/v1/:path*",
       },
     ];
   },
@@ -261,8 +246,8 @@ npm run dev
 ```bash
 cd ../backend
 
-# Create virtual environment
-python3.11 -m venv venv
+# Create virtual environment with Python 3.13 (stable and compatible with all packages)
+python3.13 -m venv venv
 
 # Activate it
 source venv/bin/activate
@@ -298,7 +283,7 @@ langchain-openai==0.2.14
 langchain-community==0.3.13
 openai==1.59.6
 sentence-transformers==3.3.1
-pinecone-client==5.0.1
+qdrant-client==1.12.1
 
 # Document Processing
 pypdf==5.1.0
@@ -357,41 +342,41 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Handbook Compass API"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
-    
+
     # Security
     SECRET_KEY: str = "your-secret-key-here-change-in-production"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    
+
     # Database
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "handbook_compass"
-    
+
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-    
+
     # Redis
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
-    
+
     @property
     def REDIS_URL(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
-    
+
     # AI/ML
     OPENAI_API_KEY: str
-    PINECONE_API_KEY: str
-    PINECONE_ENVIRONMENT: str = "us-west1-gcp"
-    PINECONE_INDEX_NAME: str = "handbook-vectors"
-    
+    QDRANT_API_KEY: str
+    QDRANT_CLUSTER_ENDPOINT: str
+    QDRANT_COLLECTION_NAME: str = "handbook-vectors"
+
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
-    
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True
@@ -462,9 +447,9 @@ SECRET_KEY=your-secret-key-change-this-in-production
 
 # AI/ML
 OPENAI_API_KEY=sk-xxx
-PINECONE_API_KEY=xxx
-PINECONE_ENVIRONMENT=us-west1-gcp
-PINECONE_INDEX_NAME=handbook-vectors
+QDRANT_API_KEY=xxx
+QDRANT_CLUSTER_ENDPOINT=https://xxx.cloud.qdrant.io
+QDRANT_COLLECTION_NAME=handbook-vectors
 
 # CORS
 BACKEND_CORS_ORIGINS=["http://localhost:3000"]
@@ -549,9 +534,12 @@ docker-compose ps
 docker-compose logs postgres
 docker-compose logs redis
 
-# Test connections
-psql -h localhost -U postgres -d handbook_compass -c "SELECT version();"
-redis-cli ping
+# IMPORTANT: If you have local PostgreSQL installed, stop it first
+# to avoid port conflicts (e.g., brew services stop postgresql@17)
+
+# Test connections (inside Docker containers)
+docker exec handbook_postgres psql -U postgres -c "SELECT version();"
+docker exec handbook_redis redis-cli ping
 ```
 
 ### Step 3: Initialize Database Schema
@@ -559,23 +547,23 @@ redis-cli ping
 ```bash
 cd backend
 
-# Create Alembic config
-alembic init migrations
+# Alembic is already initialized with migrations/ directory
+# The env.py has been configured to use app.db.Base metadata
 
-# Edit migrations/env.py to add:
-# from app.core.config import settings
-# config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-
-# Create first migration
+# Create first migration (empty for now, models will be added later)
 alembic revision --autogenerate -m "initial tables"
 
 # Apply migration
 alembic upgrade head
+
+# Verify migration applied
+docker exec handbook_postgres psql -U postgres -d handbook_compass -c "\dt"
+# Should show: alembic_version table
 ```
 
 ---
 
-## Part 5: Pinecone Vector Database Setup
+## Part 5: Qdrant Vector Database Setup
 
 ### Step 1: Create Index
 
@@ -583,39 +571,50 @@ alembic upgrade head
 cd backend
 
 # Create setup script
-cat > scripts/setup_pinecone.py << 'EOF'
+cat > scripts/setup_qdrant.py << 'EOF'
 import os
-from pinecone import Pinecone, ServerlessSpec
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams
 from dotenv import load_dotenv
 
 load_dotenv()
 
-pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+# Initialize Qdrant client with cluster endpoint
+client = QdrantClient(
+    url=os.getenv("QDRANT_CLUSTER_ENDPOINT"),
+    api_key=os.getenv("QDRANT_API_KEY"),
+)
 
-index_name = "handbook-vectors"
+collection_name = "handbook-vectors"
 
-# Check if index exists
-if index_name not in pc.list_indexes().names():
-    pc.create_index(
-        name=index_name,
-        dimension=384,  # sentence-transformers/all-MiniLM-L6-v2
-        metric="cosine",
-        spec=ServerlessSpec(
-            cloud="aws",
-            region="us-west-2"
+# Check if collection exists
+collections = client.get_collections().collections
+collection_names = [c.name for c in collections]
+
+if collection_name not in collection_names:
+    # Create collection with sentence-transformers/all-MiniLM-L6-v2 dimension
+    client.create_collection(
+        collection_name=collection_name,
+        vectors_config=VectorParams(
+            size=384,  # sentence-transformers/all-MiniLM-L6-v2
+            distance=Distance.COSINE
         )
     )
-    print(f"✅ Index '{index_name}' created successfully")
+    print(f"✅ Collection '{collection_name}' created successfully")
 else:
-    print(f"ℹ️  Index '{index_name}' already exists")
+    print(f"ℹ️  Collection '{collection_name}' already exists")
 
-# Get index info
-index = pc.Index(index_name)
-print(f"📊 Index stats: {index.describe_index_stats()}")
+# Get collection info
+collection_info = client.get_collection(collection_name)
+print(f"📊 Collection stats:")
+print(f"   - Vectors count: {collection_info.points_count}")
+print(f"   - Vector size: {collection_info.config.params.vectors.size}")
+print(f"   - Distance: {collection_info.config.params.vectors.distance}")
+print(f"   - Status: {collection_info.status}")
 EOF
 
 # Run setup
-python scripts/setup_pinecone.py
+python scripts/setup_qdrant.py
 ```
 
 ---
@@ -724,7 +723,66 @@ pytest
 
 ---
 
-## Part 8: Verification Checklist
+## Part 8: OpenAPI Code Generation
+
+### Setup API Client Generator
+
+```bash
+cd frontend
+
+# Install code generator
+npm install -D openapi-typescript-codegen
+
+# Add generation script
+# (Already created at scripts/generate-api-client.js)
+
+# Add to .gitignore
+echo "frontend/src/lib/api-client/" >> ../.gitignore
+```
+
+### Generate TypeScript Client
+
+```bash
+# Make sure backend is running first!
+cd ../backend
+source venv/bin/activate
+uvicorn app.main:app --reload --host localhost --port 8000 &
+
+# Generate client (in new terminal)
+cd ../frontend
+npm run generate:api
+```
+
+Expected output:
+```
+✅ API client generated successfully!
+📁 Location: /path/to/frontend/src/lib/api-client
+```
+
+### Test Generated Client
+
+Create test component:
+
+```typescript
+// src/components/ApiExample.tsx
+import { DefaultService } from '@/lib/api';
+
+export default function ApiExample() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    DefaultService.healthCheckHealthGet().then(setData);
+  }, []);
+
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+}
+```
+
+**📚 Full documentation**: See [OPENAPI-CODEGEN.md](./OPENAPI-CODEGEN.md)
+
+---
+
+## Part 9: Verification Checklist
 
 ### ✅ Complete Setup Checklist
 
@@ -785,7 +843,7 @@ chmod +x verify-setup.sh
 
 ---
 
-## Part 9: Next Steps (Phase 1 Implementation)
+## Part 10: Next Steps (Phase 1 Implementation)
 
 ### Recommended Implementation Order
 
@@ -825,11 +883,12 @@ chmod +x verify-setup.sh
 
 | Issue | Solution |
 |-------|----------|
-| Port already in use | `lsof -ti:3000 | xargs kill -9` (frontend) <br> `lsof -ti:8000 | xargs kill -9` (backend) |
-| PostgreSQL connection refused | `docker-compose restart postgres` |
+| Port already in use | `lsof -ti:3000 \| xargs kill -9`(frontend) <br>`lsof -ti:8000 \| xargs kill -9` (backend) |
+| PostgreSQL connection refused | Check Docker: `docker-compose ps`<br>Stop local PostgreSQL: `brew services stop postgresql@17`<br>Restart: `docker-compose restart postgres` |
 | Python module not found | `pip install -r requirements.txt` again |
 | Next.js build errors | `rm -rf .next && npm run dev` |
-| Pinecone API error | Check API key and environment region |
+| Qdrant API error | Check API key and cluster endpoint |
+| Alembic connection error | Ensure local PostgreSQL is stopped: `brew services list`<br>Use Docker PostgreSQL on port 5432 |
 
 ### Useful Commands
 
@@ -857,18 +916,20 @@ pip list
 
 ## Resources
 
+- **Project Docs**: [OpenAPI Code Generation](./OPENAPI-CODEGEN.md)
 - **Next.js Docs**: https://nextjs.org/docs
 - **FastAPI Docs**: https://fastapi.tiangolo.com
 - **TipTap Editor**: https://tiptap.dev
 - **Shadcn/ui**: https://ui.shadcn.com
 - **LangChain**: https://python.langchain.com
-- **Pinecone**: https://docs.pinecone.io
+- **Qdrant**: https://qdrant.tech/documentation
 
 ---
 
 ## Environment Variables Quick Reference
 
 ### Frontend (.env.local)
+
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXTAUTH_URL=http://localhost:3000
@@ -876,6 +937,7 @@ NEXTAUTH_SECRET=<generate-with-openssl-rand-base64-32>
 ```
 
 ### Backend (.env)
+
 ```
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -888,8 +950,9 @@ REDIS_PORT=6379
 
 SECRET_KEY=<your-secret-key>
 OPENAI_API_KEY=sk-xxx
-PINECONE_API_KEY=xxx
-PINECONE_INDEX_NAME=handbook-vectors
+QDRANT_API_KEY=xxx
+QDRANT_CLUSTER_ENDPOINT=https://xxx.cloud.qdrant.io
+QDRANT_COLLECTION_NAME=handbook-vectors
 ```
 
 ---
@@ -899,10 +962,11 @@ PINECONE_INDEX_NAME=handbook-vectors
 **Setup Time**: ~30-45 minutes
 
 **What You Have Now**:
+
 - ✅ Next.js 15 frontend with TypeScript + Tailwind
 - ✅ FastAPI backend with async PostgreSQL
 - ✅ PostgreSQL & Redis in Docker
-- ✅ Pinecone vector database
+- ✅ Qdrant vector database
 - ✅ Development scripts for easy startup
 - ✅ Testing setup
 - ✅ Hot reload for both frontend & backend

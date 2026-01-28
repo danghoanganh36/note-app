@@ -9,6 +9,8 @@ venv/
 .env
 .env.local
 .env.*.local
+./backend/.env
+./frontend/.env
 
 # IDE
 .vscode/
@@ -20,6 +22,9 @@ venv/
 .next/
 dist/
 build/
+
+# Generated API client
+frontend/src/lib/api-client/
 
 # Database
 *.db
