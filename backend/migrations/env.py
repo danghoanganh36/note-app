@@ -10,6 +10,7 @@ from app.db.base import Base
 
 # Import all models for Alembic autogenerate
 from app.models.document import Document, DocumentVersion, Folder  # noqa
+from app.models.user import User, UserSession  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

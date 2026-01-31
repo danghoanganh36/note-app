@@ -1,10 +1,13 @@
 from sqlalchemy import String, Text, Integer, Boolean, Index, CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from app.db.base import Base
 from app.models.user import User
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class Document(Base):
@@ -66,7 +69,7 @@ class Folder(Base):
 
     # Relationships
     owner: Mapped["User"] = relationship()
-    parent: Mapped[Optional["Folder"]] = relationship(back_populates="children", remote_side="id")
+    parent: Mapped[Optional["Folder"]] = relationship(back_populates="children", remote_side="[Folder.id]")
     children: Mapped[list["Folder"]] = relationship(back_populates="parent")
     documents: Mapped[list["Document"]] = relationship(back_populates="folder")
 

@@ -90,8 +90,16 @@ app.add_middleware(
 )
 
 # Import and include routers
-from app.api.endpoints import documents
+from app.api.endpoints import documents, auth
 
+# Authentication endpoints
+app.include_router(
+    auth.router,
+    prefix=f"{settings.API_V1_STR}/auth",
+    tags=["Authentication"]
+)
+
+# Document endpoints
 app.include_router(
     documents.router,
     prefix=f"{settings.API_V1_STR}/documents",
