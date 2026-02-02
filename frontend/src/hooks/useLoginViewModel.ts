@@ -58,9 +58,7 @@ export function useLoginViewModel(): UseLoginViewModelReturn {
 
   // Store tokens and redirect
   const handleAuthSuccess = (accessToken: string, refreshToken: string) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    setApiToken(accessToken);
+    setApiToken(accessToken, refreshToken);
     router.push('/dashboard');
   };
 

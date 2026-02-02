@@ -1,0 +1,62 @@
+services:
+  - type: web
+    name: handbook-api
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: sh start.sh
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: handbook-postgres
+          property: connectionString
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: handbook-postgres
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: handbook-postgres
+          property: password
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: handbook-postgres
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: handbook-postgres
+          property: port
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: handbook-postgres
+          property: database
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: 7
+      - key: BACKEND_CORS_ORIGINS
+        value: '["https://your-frontend-url.vercel.app","http://localhost:3000"]'
+      - key: REDIS_HOST
+        value: localhost
+      - key: REDIS_PORT
+        value: 6379
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_CLUSTER_ENDPOINT
+        sync: false
+
+databases:
+  - name: handbook-postgres
+    databaseName: handbook_compass
+    user: handbook_user
+    plan: free

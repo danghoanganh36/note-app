@@ -1,4 +1,5 @@
 import { OpenAPI } from './api-client/core/OpenAPI';
+import { getAccessToken, setTokens, clearTokens } from './utils/cookies';
 
 /**
  * Configure API client with base URL and auth token
@@ -7,9 +8,9 @@ export function configureApiClient() {
   // Set base URL from environment or default to localhost
   OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
   
-  // Set token from localStorage if available
+  // Set token from cookies if available
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     if (token) {
       OpenAPI.TOKEN = token;
     }
@@ -17,19 +18,19 @@ export function configureApiClient() {
 }
 
 /**
- * Update API client token (call after login/signup)
+ * Update API client token and store in cookies (call after login/signup)
  */
-export function setApiToken(token: string) {
-  OpenAPI.TOKEN = token;
+export function setApiToken(accessToken: string, refreshToken: string) {
+  OpenAPI.TOKEN = accessToken;
+  setTokens(accessToken, refreshToken);
 }
 
 /**
- * Clear API client token (call after logout)
+ * Clear API client token and remove cookies (call after logout)
  */
 export function clearApiToken() {
   OpenAPI.TOKEN = undefined;
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    clearTokens();
   }
 }
