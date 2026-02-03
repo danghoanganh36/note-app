@@ -44,6 +44,7 @@ services:
         value: 7
       - key: BACKEND_CORS_ORIGINS
         value: '["https://handbook-compass.vercel.app","http://localhost:3000"]'
+      # Note: Backend URL is https://handbook-api-tkk7.onrender.com
       - key: REDIS_HOST
         value: localhost
       - key: REDIS_PORT
