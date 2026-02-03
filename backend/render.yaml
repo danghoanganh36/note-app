@@ -43,7 +43,7 @@ services:
       - key: REFRESH_TOKEN_EXPIRE_DAYS
         value: 7
       - key: BACKEND_CORS_ORIGINS
-        value: '["https://your-frontend-url.vercel.app","http://localhost:3000"]'
+        value: '["https://handbook-compass.vercel.app","http://localhost:3000"]'
       - key: REDIS_HOST
         value: localhost
       - key: REDIS_PORT
