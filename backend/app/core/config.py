@@ -46,7 +46,10 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_NAME: str = "handbook-vectors"
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "https://handbook-compass.vercel.app"
+    ]
 
     model_config = SettingsConfigDict(
         env_file=".env",
