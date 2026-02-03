@@ -3,8 +3,8 @@
 
 set -e  # Exit on error
 
-echo "==> Installing email validator..."
-pip install email-validator dnspython
+echo "==> Installing critical dependencies..."
+pip install greenlet email-validator dnspython
 
 # Run database migrations
 echo "==> Running database migrations..."
