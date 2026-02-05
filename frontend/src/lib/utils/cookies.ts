@@ -11,7 +11,7 @@ const TOKEN_KEYS = {
 
 const COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const, // Changed from 'strict' to 'lax' for better compatibility
   path: '/',
 };
 

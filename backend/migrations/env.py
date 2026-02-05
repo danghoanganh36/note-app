@@ -9,7 +9,8 @@ from app.core.config import settings
 from app.db.base import Base
 
 # Import all models for Alembic autogenerate
-from app.models.document import Document, DocumentVersion, Folder  # noqa
+from app.models.document import Document, DocumentVersion  # noqa
+from app.models.folder import Folder  # noqa
 from app.models.user import User, UserSession  # noqa
 
 # this is the Alembic Config object, which provides

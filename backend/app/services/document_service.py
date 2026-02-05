@@ -11,7 +11,8 @@ from app.schemas.document import (
     FolderCreate,
     FolderResponse
 )
-from app.models.document import Document, Folder
+from app.models.document import Document
+from app.models.folder import Folder
 
 
 class DocumentService:

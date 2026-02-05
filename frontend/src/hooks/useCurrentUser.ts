@@ -33,9 +33,13 @@ export function useCurrentUser(): UseCurrentUserReturn {
       console.error('Failed to fetch user:', err);
       
       if (err instanceof ApiError && err.status === 401) {
-        // Unauthorized - redirect to login
-        clearTokens();
-        router.push('/login');
+        // Axios interceptor already tried to refresh token
+        // If still 401, token refresh failed
+        const accessTokenAfterRetry = getAccessToken();
+        if (!accessTokenAfterRetry) {
+          clearTokens();
+          router.push('/login');
+        }
       } else {
         setError('Failed to load user data');
       }

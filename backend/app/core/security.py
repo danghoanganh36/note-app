@@ -7,9 +7,12 @@ import bcrypt
 from app.core.config import settings
 
 def hash_password(password: str) -> str:
-    """Hash password using bcrypt"""
+    """Hash password using bcrypt with optimized rounds for development"""
     password_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
+    # Use 4 rounds for development (fast), 12 for production
+    # This makes hashing ~16x faster in development
+    rounds = 4 if settings.ENVIRONMENT == 'development' else 12
+    salt = bcrypt.gensalt(rounds=rounds)
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode('utf-8')
 

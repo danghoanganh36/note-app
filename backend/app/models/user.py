@@ -9,7 +9,8 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from app.db import Base
 
 if TYPE_CHECKING:
-    from app.models.document import Document, DocumentVersion, Folder
+    from app.models.document import Document, DocumentVersion
+    from app.models.folder import Folder
 
 class User(Base):
     __tablename__ = "users"

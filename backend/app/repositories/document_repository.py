@@ -4,7 +4,8 @@ from sqlalchemy.orm import selectinload
 from typing import Optional, List
 from uuid import UUID
 
-from app.models.document import Document, DocumentVersion, Folder
+from app.models.document import Document, DocumentVersion
+from app.models.folder import Folder
 from app.schemas.document import DocumentCreate, DocumentUpdate
 
 
